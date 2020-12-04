@@ -4,7 +4,7 @@ from flask_restful import Api
 
 from Config import Config
 from extensions import db
-from models.worker import Workers
+from resources.worker import WorkerListResource
 from resources.inventory import InventoryListResource, InventoryResource, InventoryPublishResource
 
 
@@ -26,6 +26,7 @@ def register_extensions(app):
 def register_resources(app):
     api = Api(app)
 
+    api.add_resource(WorkerListResource, '/workers')
     api.add_resource(InventoryListResource, '/inventories')
     api.add_resource(InventoryResource, '/inventories/<int:inventory_id>')
     api.add_resource(InventoryPublishResource, '/inventories/<int:inventory_id>/publish')
