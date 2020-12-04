@@ -2,7 +2,7 @@ from extensions import db
 
 
 class Worker(db.Model):
-    __tablename__ = 'Workers'
+    __tablename__ = 'Worker'
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False, unique=True)
