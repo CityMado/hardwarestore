@@ -5,12 +5,13 @@ from flask_restful import Api
 from Config import Config
 from extensions import db
 from models.worker import Workers
-from resources.inventory import InventoryListResource, InventoryResource, InventoryPublishResource
+from resources.tool import ToolListResource, ToolResource, ToolPublishResource
 
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
+    app.app_context().push()
 
     register_extensions(app)
     register_resources(app)
@@ -26,11 +27,11 @@ def register_extensions(app):
 def register_resources(app):
     api = Api(app)
 
-    api.add_resource(InventoryListResource, '/inventories')
-    api.add_resource(InventoryResource, '/inventories/<int:inventory_id>')
-    api.add_resource(InventoryPublishResource, '/inventories/<int:inventory_id>/publish')
+    api.add_resource(ToolListResource, '/tools')
+    api.add_resource(ToolResource, '/tools/<int:inventory_id>')
+    api.add_resource(ToolPublishResource, '/tools/<int:inventory_id>/publish')
 
 
 if __name__ == '__main__':
     app = create_app()
-    app.run()
+    app.run(port=5000, debug=True)
