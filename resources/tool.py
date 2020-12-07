@@ -76,4 +76,4 @@ class ToolPublishResource(Resource):
 
         tool.is_publish = False
 
-        return  {}, HTTPStatus.NO_CONTENT
+        return {}, HTTPStatus.NO_CONTENT
