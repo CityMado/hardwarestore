@@ -4,8 +4,12 @@ from flask_restful import Api
 
 from Config import Config
 from extensions import db
+
 from models.worker import Workers
 from resources.tool import ToolListResource, ToolResource, ToolPublishResource
+
+from resources.worker import WorkerListResource
+from resources.inventory import InventoryListResource, InventoryResource, InventoryPublishResource
 
 
 def create_app():
@@ -26,10 +30,6 @@ def register_extensions(app):
 
 def register_resources(app):
     api = Api(app)
-
-    api.add_resource(ToolListResource, '/tools')
-    api.add_resource(ToolResource, '/tools/<int:inventory_id>')
-    api.add_resource(ToolPublishResource, '/tools/<int:inventory_id>/publish')
 
 
 if __name__ == '__main__':
