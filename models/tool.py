@@ -27,4 +27,4 @@ class Tool:
             'inventory': self.inventory, #how many is in the inventory
             'location': self.location, #location in the warehouse
             'price': self.price #price of the tool
-        }
+         }
