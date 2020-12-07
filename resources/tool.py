@@ -6,7 +6,7 @@ from models.tool import tool, tool_list
 
 
 class ToolListResource(Resource):
-    # asdf
+
     def get(self):
 
         data = []
