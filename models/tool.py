@@ -11,7 +11,7 @@ def get_last_id():
 
 class Tool:
 
-    def __init__(self, name, inventory, placement, price, ):
+    def __init__(self, name, inventory, location, price, ):
         self.id = get_last_id()
         self.name = name
         self.inventory = inventory

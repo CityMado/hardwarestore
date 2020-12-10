@@ -1,5 +1,6 @@
 from flask_restful import Resource
 from http import HTTPStatus
+from flask import request
 
 from models.sale import Sale, sale_list
 
