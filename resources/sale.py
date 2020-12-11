@@ -21,10 +21,10 @@ class SaleListResource(Resource):
         data = request.get_json()
 
         sale = Sale(name=data['name'],
-                        description=data['description'],
-                        date_of_sale=data[' date_of_sale'],
-                        sale_amount=data['sale_amount'],
-                        who_sold=data['who_sold'])
+                    description=data['description'],
+                    date_of_sale=data[' date_of_sale'],
+                    sale_amount=data['sale_amount'],
+                    who_sold=data['who_sold'])
 
         sale_list.append(sale)
 
