@@ -2,7 +2,7 @@ from extensions import db
 
 
 class Worker(db.Model):
-    __tablename__ = 'Worker'
+    __tablename__ = 'worker'
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), nullable=False, unique=True)
@@ -13,7 +13,7 @@ class Worker(db.Model):
     updated_at = db.Column(db.DateTime(), nullable=False, server_default=db.func.now(), onupdate=db.func.now())
 
     Tool = db.relationship('Tool', backref='Worker')
-    Sales = db.relationship('Sales', backref='Worker')
+    Sales = db.relationship('Sale', backref='Worker')
 
     @classmethod
     def get_by_username(cls, username):

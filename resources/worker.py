@@ -22,18 +22,18 @@ class WorkerListResource(Resource):
 
         password = hash_password(non_hash_password)
 
-        user = Worker(
+        worker = Worker(
             username=username,
             email=email,
             password=password
         )
 
-        user.save()
+        worker.save()
 
         data = {
-            'id': user.id,
-            'username': user.username,
-            'email': user.email
+            'id': worker.id,
+            'username': worker.username,
+            'email': worker.email
         }
 
         return data, HTTPStatus.CREATED

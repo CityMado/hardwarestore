@@ -1,3 +1,5 @@
+from extensions import db
+
 tool_list = []
 
 
@@ -9,22 +11,16 @@ def get_last_id():
     return last_tool.id + 1
 
 
-class Tool:
+class Tool(db.Model):
+    __tablename__ = 'tool'
 
-    def __init__(self, name, inventory, location, price, ):
-        self.id = get_last_id()
-        self.name = name
-        self.inventory = inventory
-        self.location = location
-        self.price = price
-        self.is_publish = False
+    id = db.Column(db.Integer, primary_key=True)
+    tool_name = db.Column(db.String(200))
+    inventory = db.Column(db.Integer)
+    location = db.Column(db.String(1000))
+    price = db.Column(db.Integer)
+    is_publish = db.Column(db.Boolean(), default=False)
+    created_at = db.Column(db.DateTime(), nullable=False, server_default=db.func.now())
+    updated_at = db.Column(db.DateTime(), nullable=False, server_default=db.func.now(), onupdate=db.func.now())
 
-    @property
-    def data(self):
-        return {
-            'id': self.id,
-            'name': self.name, #name of the tool
-            'inventory': self.inventory, #how many is in the inventory
-            'location': self.location, #location in the warehouse
-            'price': self.price #price of the tool
-         }
+    worker_id = db.Column(db.Integer(), db.ForeignKey("worker.id"))

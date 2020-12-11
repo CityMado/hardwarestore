@@ -20,7 +20,7 @@ class ToolListResource(Resource):
     def post(self):
         data = request.get_json()
 
-        tool = Tool(name=data['name'],
+        tool = Tool(tool_name=data['tool name'],
                     inventory=data['inventory'],
                     location=data['location'],
                     price=data['price'])
@@ -48,7 +48,7 @@ class ToolResource(Resource):
         if tool is None:
             return {'message': 'tool not found'}, HTTPStatus.NOT_FOUND
 
-        tool.name = data['name']
+        tool.tool_name = data['tool name']
         tool.inventory = data['inventory']
         tool.location = data['location']
         tool.price = data['price']
