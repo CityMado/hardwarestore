@@ -28,7 +28,8 @@ class ToolListResource(Resource):
         tool = Tool(tool_name=json_data['tool_name'],
                     inventory=json_data['inventory'],
                     location=json_data['location'],
-                    price=json_data['price'])
+                    price=json_data['price'],
+                    worker_id=current_worker)
 
         tool.save()
 
