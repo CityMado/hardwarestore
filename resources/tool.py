@@ -6,7 +6,7 @@ from http import HTTPStatus
 from models.tool import Tool
 
 
-class SaleListResource(Resource):
+class ToolListResource(Resource):
 
     def get(self):
 
