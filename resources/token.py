@@ -13,6 +13,8 @@ from flask_jwt_extended import (
 from utils import check_password
 from models.worker import Worker
 
+black_list = set()
+
 
 class TokenResource(Resource):
 
@@ -43,4 +45,15 @@ class RefreshResource(Resource):
             token = create_access_token(identity=current_worker, fresh=False)
 
             return {'token': token}, HTTPStatus.OK
+
+
+class RevokeResource(Resource):
+
+    @jwt_required
+    def post(self):
+        jti = get_raw_jwt()['jti']
+
+        black_list.add(jti)
+
+        return {'message': 'Successfully logged out'}, HTTPStatus.OK
 

@@ -6,7 +6,7 @@ from Config import Config
 from extensions import db, jwt
 
 from resources.worker import WorkerListResource, WorkerResource, MeResource
-from resources.token import TokenResource, RefreshResource
+from resources.token import TokenResource, RefreshResource, RevokeResource, black_list
 from resources.tool import ToolListResource, ToolResource, ToolPublishResource
 from resources.sale import SaleListResource, SaleResource, SalePublishResource
 
@@ -23,9 +23,16 @@ def create_app():
 
 
 def register_extensions(app):
+    db.app = app
     db.init_app(app)
     migrate = Migrate(app, db)
     jwt.init_app(app)
+
+    @jwt.token_in_blacklist_loader
+    def check_if_token_in_blacklist(decrypted_token):
+        jti = decrypted_token['jti']
+
+        return jti in black_list
 
 
 def register_resources(app):
@@ -37,6 +44,7 @@ def register_resources(app):
 
     api.add_resource(TokenResource, '/token')
     api.add_resource(RefreshResource, '/refresh')
+    api.add_resource(RevokeResource, '/revoke')
 
     api.add_resource(ToolListResource, '/tools')
     api.add_resource(ToolResource, '/tools/<int:tool_id>')
@@ -45,6 +53,7 @@ def register_resources(app):
     api.add_resource(SaleListResource, '/sales')
     api.add_resource(SaleResource, '/sales/<int:sale_id>')
     api.add_resource(SalePublishResource, '/tools/<int:sale_id>/publish')
+
 
 if __name__ == '__main__':
     app = create_app()
