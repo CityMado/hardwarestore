@@ -1,69 +1,98 @@
 from flask_restful import Resource
+from flask_jwt_extended import get_jwt_identity, jwt_required, jwt_optional
 from http import HTTPStatus
 from flask import request
 
-from models.sale import Sale, sale_list
+from models.sale import Sale
 
 
 class SaleListResource(Resource):
 
     def get(self):
 
+        sales = Sale.get_all_published()
+
         data = []
 
-        for sale in sale_list:
-            if sale.is_publish is True:
-                data.append(sale.data)
+        for sale in sales:
+            data.append(sale.data())
 
         return {'data': data}, HTTPStatus.OK
 
+    @jwt_required
     def post(self):
-        data = request.get_json()
+        json_data = request.get_json()
 
-        sale = Sale(name=data['name'],
-                    description=data['description'],
-                    date_of_sale=data[' date_of_sale'],
-                    sale_amount=data['sale_amount'],
-                    who_sold=data['who_sold'])
+        current_worker = get_jwt_identity()
 
-        sale_list.append(sale)
+        sale = Sale(name=json_data['name'],
+                    description=json_data['description'],
+                    date_of_sale=json_data['date_of_sale'],
+                    sale_amount=json_data['sale_amount'],
+                    who_sold=json_data['who_sold'],
+                    worker_id=current_worker)
 
-        return sale.data, HTTPStatus.CREATED
+        sale.save()
+
+        return sale.data(), HTTPStatus.CREATED
 
 
 class SaleResource(Resource):
 
+    @jwt_optional
     def get(self, sale_id):
-        sale = next((sale for sale in sale_list if sale.id == sale_id and sale.is_publish == True), None)
+
+        sale = Sale.get_by_id(sale_id=sale_id)
 
         if sale is None:
-            return {'message': 'sale not found'}, HTTPStatus.NOT_FOUND
+            return {'message': 'Sale not found'}, HTTPStatus.NOT_FOUND
 
-        return sale.data, HTTPStatus.OK
+        current_worker = get_jwt_identity()
 
+        if sale.is_publish == False and sale.worker_id != current_worker:
+            return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
+
+        return sale.data(), HTTPStatus.OK
+
+    @jwt_required
     def put(self, sale_id):
-        data = request.get_json()
 
-        sale = next((sale for sale in sale_list if sale.id == sale_id), None)
+        json_data = request.get_json()
+
+        sale = Sale.get_by_id(sale_id=sale_id)
 
         if sale is None:
-            return {'message': 'sale not found'}, HTTPStatus.NOT_FOUND
+            return {'message': 'Recipe not found'}, HTTPStatus.NOT_FOUND
 
-        sale.name = data['name']
-        sale.description = data['description']
-        sale.date_of_sale = data['date_of_sale']
-        sale.sale_amount = data['sale_amount']
-        sale.who_sold = data['who_sold']
+        current_user = get_jwt_identity()
 
-        return sale.data, HTTPStatus.OK
+        if current_user != sale.user_id:
+            return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
 
+        sale.name = json_data['name']
+        sale.description = json_data['description']
+        sale.date_of_sale = json_data['date_of_sale']
+        sale.sale_amount = json_data['sale_amount']
+        sale.who_sold = json_data['who_sold']
+
+        sale.save()
+
+        return sale.data(), HTTPStatus.OK
+
+    @jwt_required
     def delete(self, sale_id):
-        sale = next((sale for sale in sale_list if sale.id == sale_id), None)
+
+        sale = Sale.get_by_id(sale_id=sale_id)
 
         if sale is None:
-            return {'message': 'recipe not found'}, HTTPStatus.NOT_FOUND
+            return {'message': 'Sale not found'}, HTTPStatus.NOT_FOUND
 
-        sale_list.remove(sale)
+        current_user = get_jwt_identity()
+
+        if current_user != sale.user_id:
+            return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
+
+        sale.delete()
 
         return {}, HTTPStatus.NO_CONTENT
 
