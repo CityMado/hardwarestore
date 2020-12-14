@@ -23,6 +23,10 @@ class Worker(db.Model):
     def get_by_email(cls, email):
         return cls.query.filter_by(email=email).first()
 
+    @classmethod
+    def get_by_id(cls, id):
+        return cls.query.filter_by(id=id).first()
+
     def save(self):
         db.session.add(self)
         db.session.commit()
