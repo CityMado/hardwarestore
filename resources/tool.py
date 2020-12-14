@@ -1,59 +1,98 @@
 from flask import request
+from flask_jwt_extended import get_jwt_identity, jwt_required, jwt_optional
 from flask_restful import Resource
 from http import HTTPStatus
 
-from models.tool import Tool, tool_list
+from models.tool import Tool
 
 
-class ToolListResource(Resource):
+class SaleListResource(Resource):
 
     def get(self):
 
+        tools = Tool.get_all_published()
+
         data = []
 
-        for tool in tool_list:
-            if tool.is_publish is True:
-                data.append(tool.data)
+        for tool in tools:
+            data.append(tool.data())
 
-            return {'data': data}, HTTPStatus.OK
+        return {'data': data}, HTTPStatus.OK
 
+    @jwt_required
     def post(self):
-        data = request.get_json()
+        json_data = request.get_json()
 
-        tool = Tool(tool_name=data['tool name'],
-                    inventory=data['inventory'],
-                    location=data['location'],
-                    price=data['price'])
+        current_worker = get_jwt_identity()
 
-        tool_list.append(tool)
+        tool = Tool(tool_name=json_data['tool_name'],
+                    inventory=json_data['inventory'],
+                    location=json_data['location'],
+                    price=json_data['price'])
 
-        return tool.data, HTTPStatus.CREATED
+        tool.save()
+
+        return tool.data(), HTTPStatus.CREATED
 
 
 class ToolResource(Resource):
 
+    @jwt_optional
     def get(self, tool_id):
-        tool = next((tool for tool in tool_list if tool.id == tool_id and tool.is_publish == True), None)
+
+        tool = Tool.get_by_id(tool_id=tool_id)
 
         if tool is None:
-            return {'message': 'tool not found'}, HTTPStatus.NOT_FOUND
+            return {'message': 'Tool not found'}, HTTPStatus.NOT_FOUND
 
-        return tool.data, HTTPStatus.OK
+        current_worker = get_jwt_identity()
 
+        if tool.is_publish == False and tool.worker_id != current_worker:
+            return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
+
+        return tool.data(), HTTPStatus.OK
+
+    @jwt_required
     def put(self, tool_id):
-        data = request.get_json()
 
-        tool = next(( tool for tool in tool_list if tool.id == tool_id), None)
+        json_data = request.get_json()
+
+        tool = Tool.get_by_id(tool_id=tool_id)
 
         if tool is None:
-            return {'message': 'tool not found'}, HTTPStatus.NOT_FOUND
+            return {'message': 'Tool not found'}, HTTPStatus.NOT_FOUND
 
-        tool.tool_name = data['tool name']
-        tool.inventory = data['inventory']
-        tool.location = data['location']
-        tool.price = data['price']
+        current_user = get_jwt_identity()
 
-        return tool.data, HTTPStatus.OK
+        if current_user != tool.user_id:
+            return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
+
+        tool.tool_name = json_data['tool_name']
+        tool.inventory = json_data['inventory']
+        tool.location = json_data['location']
+        tool.price = json_data['price']
+
+        tool.save()
+
+        return tool.data(), HTTPStatus.OK
+
+    @jwt_required
+    def delete(self, sale_id):
+
+        tool = Tool.get_by_id(sale_id=sale_id)
+
+        if tool is None:
+            return {'message': 'Tool not found'}, HTTPStatus.NOT_FOUND
+
+        current_user = get_jwt_identity()
+
+        if current_user != tool.user_id:
+            return {'message': 'Access is not allowed'}, HTTPStatus.FORBIDDEN
+
+        tool.delete()
+
+        return {}, HTTPStatus.NO_CONTENT
+
 
 
 class ToolPublishResource(Resource):
