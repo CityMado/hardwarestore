@@ -6,3 +6,4 @@ Flask-RESTful==0.3.7
 Flask==1.0.3
 httpie==1.0.3
 passlib==1.7.1
+Flask-JWT-Extended==3.20.0
