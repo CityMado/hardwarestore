@@ -1,7 +1,14 @@
 from http import HTTPStatus
 from flask import request
 from flask_restful import Resource
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import (
+    create_access_token,
+    jwt_refresh_token_required,
+    create_refresh_token,
+    get_jwt_identity,
+    jwt_required,
+    get_raw_jwt
+)
 
 from utils import check_password
 from models.worker import Worker
@@ -22,5 +29,18 @@ class TokenResource(Resource):
             return {'message': 'username or password is incorrect'}, HTTPStatus.UNAUTHORIZED
 
         access_token = create_access_token(identity=user.id, fresh=True)
+        refresh_token = create_refresh_token(identity=user.id)
 
-        return {'access_token': access_token}, HTTPStatus.OK
+        return {'access_token': access_token, 'refresh_token': refresh_token}, HTTPStatus.OK
+
+
+class RefreshResource(Resource):
+
+        @jwt_refresh_token_required
+        def post(self):
+            current_worker = get_jwt_identity()
+
+            token = create_access_token(identity=current_worker, fresh=False)
+
+            return {'token': token}, HTTPStatus.OK
+

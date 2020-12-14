@@ -6,7 +6,7 @@ from Config import Config
 from extensions import db, jwt
 
 from resources.worker import WorkerListResource, WorkerResource, MeResource
-from resources.token import TokenResource
+from resources.token import TokenResource, RefreshResource
 from resources.tool import ToolListResource, ToolResource, ToolPublishResource
 from resources.sale import SaleListResource, SaleResource, SalePublishResource
 
@@ -36,6 +36,7 @@ def register_resources(app):
     api.add_resource(MeResource, '/me')
 
     api.add_resource(TokenResource, '/token')
+    api.add_resource(RefreshResource, '/refresh')
 
     api.add_resource(ToolListResource, '/tools')
     api.add_resource(ToolResource, '/tools/<int:tool_id>')
